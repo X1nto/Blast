@@ -21,7 +21,7 @@ import com.materiapps.blast.ui.screen.MostLikelyToScreen
 import com.materiapps.blast.ui.screen.NeverHaveIEverScreen
 import com.materiapps.blast.ui.screen.TruthOrDareScreen
 import com.materiapps.blast.ui.screen.WouldYouRatherScreen
-import com.materiapps.blast.ui.theme.TruthOrDareTheme
+import com.materiapps.blast.ui.theme.BlastTheme
 import com.materiapps.blast.ui.viewmodel.MainViewModel
 import com.xinto.taxi.Taxi
 import com.xinto.taxi.rememberNavigator
@@ -30,7 +30,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            TruthOrDareTheme {
+            BlastTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
