@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Blast</string>
+
+    <string name="screen_tod_title">Truth or Dare</string>
+    <string name="screen_tod_start">Swipe right for Truth, left for Dare. Alternatively, use the buttons below.</string>
+    <string name="screen_tod_truth">Truth</string>
+    <string name="screen_tod_dare">Dare</string>
+
+    <string name="screen_nhie_title">Never have I ever</string>
+    <string name="screen_nhie_start">Swipe in any direction to start.</string>
+
+    <string name="screen_wyr_title">Would you rather</string>
+    <string name="screen_wyr_start">Swipe in any direction to start.</string>
+
+    <string name="screen_mlt_title">Most likely to</string>
+    <string name="screen_mlt_start">Swipe in any direction to start.</string>
+</resources>
