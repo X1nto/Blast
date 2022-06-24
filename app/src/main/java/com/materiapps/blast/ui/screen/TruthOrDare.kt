@@ -2,8 +2,11 @@ package com.materiapps.blast.ui.screen
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
@@ -19,6 +22,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun TruthOrDareScreen(
+    windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier,
     viewModel: TodViewModel = viewModel()
 ) {
@@ -34,14 +38,22 @@ fun TruthOrDareScreen(
         }
     }
     val coroutineScope = rememberCoroutineScope()
-    Column(
+    WidgetAdaptiveStackLayout(
         modifier = modifier,
-        verticalArrangement = Arrangement.SpaceBetween
+        windowSizeClass = windowSizeClass,
+        onTruthClick = {
+            coroutineScope.launch {
+                stackState.swipeToRight()
+            }
+        },
+        onDareClick = {
+            coroutineScope.launch {
+                stackState.swipeToLeft()
+            }
+        }
     ) {
         Stack(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
+            modifier = Modifier.fillMaxSize(),
             state = stackState,
             placeholder = {
                 PlaceholderTodCard(
@@ -69,35 +81,100 @@ fun TruthOrDareScreen(
                 }
             }
         }
-        WidgetStackControls(
-            modifier = Modifier.padding(
-                start = 8.dp,
-                end = 8.dp,
-                bottom = 12.dp
-            ),
-            onTruthClick = {
-                coroutineScope.launch {
-                    stackState.swipeToRight()
-                }
-            },
-            onDareClick = {
-                coroutineScope.launch {
-                    stackState.swipeToLeft()
-                }
-            }
-        )
     }
 }
 
 @Composable
-private fun WidgetStackControls(
+fun WidgetAdaptiveStackLayout(
+    onTruthClick: () -> Unit,
+    onDareClick: () -> Unit,
+    windowSizeClass: WindowSizeClass,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    when (windowSizeClass.widthSizeClass) {
+        WindowWidthSizeClass.Compact -> {
+            Column(
+                modifier = modifier,
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Box(modifier = Modifier.weight(1f)) {
+                    content()
+                }
+                WidgetHorizontalStackControls(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            start = 8.dp,
+                            end = 8.dp,
+                            bottom = 12.dp
+                        ),
+                    onTruthClick = onTruthClick,
+                    onDareClick = onDareClick
+                )
+            }
+        }
+        WindowWidthSizeClass.Medium -> {
+            Row(
+                modifier = modifier,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                ElevatedButton(
+                    modifier = Modifier.padding(start = 16.dp),
+                    onClick = onDareClick
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_arrow_left),
+                        contentDescription = stringResource(R.string.screen_tod_dare)
+                    )
+                    Text(stringResource(R.string.screen_tod_dare))
+                }
+                Box(modifier = Modifier.weight(1f)) {
+                    content()
+                }
+                ElevatedButton(
+                    modifier = Modifier.padding(end = 16.dp),
+                    onClick = onTruthClick
+                ) {
+                    Text(stringResource(R.string.screen_tod_truth))
+                    Icon(
+                        painter = painterResource(R.drawable.ic_arrow_right),
+                        contentDescription = stringResource(R.string.screen_tod_truth)
+                    )
+                }
+            }
+        }
+        WindowWidthSizeClass.Expanded -> {
+            Row(
+                modifier = modifier,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(modifier = Modifier.weight(1f)) {
+                    content()
+                }
+                WidgetVerticalStackControls(
+                    modifier = Modifier
+                        .weight(0.3f)
+                        .padding(
+                            start = 4.dp,
+                            end = 12.dp,
+                        ),
+                    onTruthClick = onTruthClick,
+                    onDareClick = onDareClick
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun WidgetHorizontalStackControls(
     onTruthClick: () -> Unit,
     onDareClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
         modifier = modifier
-            .fillMaxWidth()
             .height(56.dp)
             .clip(MaterialTheme.shapes.large),
         horizontalArrangement = Arrangement.spacedBy(2.dp)
@@ -117,6 +194,45 @@ private fun WidgetStackControls(
         ControlButton(
             modifier = Modifier
                 .fillMaxHeight()
+                .weight(1f),
+            onClick = onTruthClick,
+        ) {
+            Text(stringResource(R.string.screen_tod_truth))
+            Icon(
+                painter = painterResource(R.drawable.ic_arrow_right),
+                contentDescription = stringResource(R.string.screen_tod_truth)
+            )
+        }
+    }
+}
+
+@Composable
+private fun WidgetVerticalStackControls(
+    onTruthClick: () -> Unit,
+    onDareClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .clip(MaterialTheme.shapes.large)
+            .height(108.dp),
+        verticalArrangement = Arrangement.spacedBy(2.dp)
+    ) {
+        ControlButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            onClick = onDareClick,
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_arrow_left),
+                contentDescription = stringResource(R.string.screen_tod_dare)
+            )
+            Text(stringResource(R.string.screen_tod_dare))
+        }
+        ControlButton(
+            modifier = Modifier
+                .fillMaxWidth()
                 .weight(1f),
             onClick = onTruthClick,
         ) {

@@ -8,13 +8,19 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.materiapps.blast.ui.navigation.MiniGame
@@ -37,7 +43,11 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MainScreen(modifier = Modifier.fillMaxSize())
+                    val windowSizeClass = calculateWindowSizeClass(this)
+                    MainScreen(
+                        modifier = Modifier.fillMaxSize(),
+                        windowSizeClass = windowSizeClass
+                    )
                 }
             }
         }
@@ -47,91 +57,41 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
+    windowSizeClass: WindowSizeClass,
     viewModel: MainViewModel = viewModel()
 ) {
     val navigator = rememberNavigator<MiniGame>(initial = MiniGame.TruthOrDare)
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
-    val bottomBarItems = MiniGame.bottomBarItems
-    DismissibleNavigationDrawer(
+
+    WidgetAdaptiveDrawer(
+        windowSizeClass = windowSizeClass,
         drawerState = drawerState,
         drawerContent = {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-                contentPadding = PaddingValues(8.dp)
-            ) {
-                item {
-                    ProvideTextStyle(MaterialTheme.typography.titleMedium) {
-                        Text(
-                            modifier = Modifier.padding(
-                                horizontal = 16.dp,
-                                vertical = 12.dp
-                            ),
-                            text = "MiniGames"
-                        )
-                    }
-                }
-
-                items(bottomBarItems) { minigame ->
-                    NavigationDrawerItem(
-                        selected = navigator.currentDestination == minigame,
-                        onClick = { navigator.replace(minigame) },
-                        icon = {
-                            Icon(
-                                modifier = Modifier.size(24.dp),
-                                painter = painterResource(minigame.icon),
-                                contentDescription = null
-                            )
-                        },
-                        label = {
-                            Text(
-                                text = stringResource(minigame.label),
-                                overflow = TextOverflow.Ellipsis,
-                                maxLines = 1
-                            )
-                        }
-                    )
-                }
-            }
+            WidgetDrawerContent(
+                onMinigameClick = {
+                    navigator.replace(it)
+                },
+                currentDestination = navigator.currentDestination
+            )
         }
     ) {
         Scaffold(
             modifier = modifier,
             topBar = {
-                CenterAlignedTopAppBar(
-                    title = {
-                        AnimatedContent(
-                            targetState = navigator.currentDestination,
-                            transitionSpec = {
-                                slideIntoContainer(
-                                    towards = AnimatedContentScope.SlideDirection.Up
-                                ) + fadeIn() with slideOutOfContainer(
-                                    towards = AnimatedContentScope.SlideDirection.Up
-                                ) + fadeOut()
-                            },
-                            contentAlignment = Alignment.Center
-                        ) { destination ->
-                            Text(stringResource(destination.label))
+                WidgetTopAppBar(
+                    onMenuClick = {
+                        coroutineScope.launch {
+                            if (drawerState.isClosed) {
+                                drawerState.open()
+                            } else {
+                                drawerState.close()
+                            }
                         }
                     },
-                    navigationIcon = {
-                        IconButton(onClick = {
-                            coroutineScope.launch {
-                                if (drawerState.isClosed) {
-                                    drawerState.open()
-                                } else {
-                                    drawerState.close()
-                                }
-                            }
-                        }) {
-                            val menuIcon = painterResource(R.drawable.ic_menu)
-                            val menuOpenIcon = painterResource(R.drawable.ic_menu_open)
-                            Icon(
-                                painter = if (drawerState.isOpen) menuOpenIcon else menuIcon,
-                                contentDescription = null
-                            )
-                        }
-                    }
+                    topBarLabel = stringResource(navigator.currentDestination.label),
+                    isDrawerOpen = drawerState.isOpen,
+                    showMenuIcon = windowSizeClass.widthSizeClass != WindowWidthSizeClass.Expanded
                 )
             },
         ) { paddingValues ->
@@ -144,7 +104,10 @@ fun MainScreen(
             ) {
                 when (it) {
                     is MiniGame.TruthOrDare -> {
-                        TruthOrDareScreen(modifier = Modifier.fillMaxSize())
+                        TruthOrDareScreen(
+                            windowSizeClass = windowSizeClass,
+                            modifier = Modifier.fillMaxSize()
+                        )
                     }
                     is MiniGame.NeverHaveIEver -> {
                         NeverHaveIEverScreen(modifier = Modifier.fillMaxSize())
@@ -159,4 +122,129 @@ fun MainScreen(
             }
         }
     }
+}
+
+@Composable
+private fun WidgetAdaptiveDrawer(
+    windowSizeClass: WindowSizeClass,
+    drawerContent: @Composable ColumnScope.() -> Unit,
+    modifier: Modifier = Modifier,
+    drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
+    gesturesEnabled: Boolean = true,
+    drawerShape: Shape = Shapes.None,
+    drawerTonalElevation: Dp = DrawerDefaults.DismissibleDrawerElevation,
+    drawerContainerColor: Color = MaterialTheme.colorScheme.surface,
+    drawerContentColor: Color = contentColorFor(drawerContainerColor),
+    content: @Composable () -> Unit
+) {
+    if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded) {
+        PermanentNavigationDrawer(
+            drawerContent = drawerContent,
+            modifier = modifier,
+            drawerShape = drawerShape,
+            drawerTonalElevation = drawerTonalElevation,
+            drawerContainerColor = drawerContainerColor,
+            drawerContentColor = drawerContentColor,
+            content = content
+        )
+    } else {
+        DismissibleNavigationDrawer(
+            drawerContent = drawerContent,
+            modifier = modifier,
+            drawerState = drawerState,
+            gesturesEnabled = gesturesEnabled,
+            drawerShape = drawerShape,
+            drawerTonalElevation = drawerTonalElevation,
+            drawerContainerColor = drawerContainerColor,
+            drawerContentColor = drawerContentColor,
+            content = content
+        )
+    }
+}
+
+@Composable
+private fun WidgetDrawerContent(
+    onMinigameClick: (MiniGame) -> Unit,
+    currentDestination: MiniGame,
+    modifier: Modifier = Modifier,
+) {
+    val bottomBarItems = MiniGame.bottomBarItems
+    LazyColumn(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        contentPadding = PaddingValues(8.dp)
+    ) {
+        item {
+            ProvideTextStyle(MaterialTheme.typography.titleMedium) {
+                Text(
+                    modifier = Modifier.padding(
+                        horizontal = 16.dp,
+                        vertical = 12.dp
+                    ),
+                    text = "Minigames"
+                )
+            }
+        }
+
+        items(bottomBarItems) { minigame ->
+            NavigationDrawerItem(
+                selected = currentDestination == minigame,
+                onClick = { onMinigameClick(minigame) },
+                icon = {
+                    Icon(
+                        modifier = Modifier.size(24.dp),
+                        painter = painterResource(minigame.icon),
+                        contentDescription = null
+                    )
+                },
+                label = {
+                    Text(
+                        text = stringResource(minigame.label),
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1
+                    )
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun WidgetTopAppBar(
+    onMenuClick: () -> Unit,
+    topBarLabel: String,
+    isDrawerOpen: Boolean,
+    showMenuIcon: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    CenterAlignedTopAppBar(
+        modifier = modifier,
+        title = {
+            AnimatedContent(
+                targetState = topBarLabel,
+                transitionSpec = {
+                    slideIntoContainer(
+                        towards = AnimatedContentScope.SlideDirection.Up
+                    ) + fadeIn() with slideOutOfContainer(
+                        towards = AnimatedContentScope.SlideDirection.Up
+                    ) + fadeOut()
+                },
+                contentAlignment = Alignment.Center
+            ) { label ->
+                Text(label)
+            }
+        },
+        navigationIcon = {
+            if (showMenuIcon) {
+                IconButton(onClick = onMenuClick) {
+                    val menuIcon = painterResource(R.drawable.ic_menu)
+                    val menuOpenIcon = painterResource(R.drawable.ic_menu_open)
+                    Icon(
+                        painter = if (isDrawerOpen) menuOpenIcon else menuIcon,
+                        contentDescription = null
+                    )
+                }
+            }
+        }
+    )
 }
