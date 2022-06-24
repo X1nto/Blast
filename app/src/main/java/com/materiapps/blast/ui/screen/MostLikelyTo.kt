@@ -25,36 +25,23 @@ fun MostLikelyToScreen(
     val stackState = rememberStackState {
         viewModel.next()
     }
-    Scaffold(
+    Stack(
         modifier = modifier,
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(stringResource(R.string.screen_mlt_title))
-                }
+        state = stackState,
+        placeholder = {
+            PlaceholderMltCard(
+                modifier = Modifier
+                    .width(300.dp)
+                    .height(450.dp)
             )
-        },
-    ) { paddingValues ->
-        Stack(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            state = stackState,
-            placeholder = {
-                PlaceholderMltCard(
-                    modifier = Modifier
-                        .width(300.dp)
-                        .height(450.dp)
-                )
+        }
+    ) {
+        when (val card = viewModel.currentCard) {
+            is MltCard.Start -> {
+                WidgetStartMltCard()
             }
-        ) {
-            when (val card = viewModel.currentCard) {
-                is MltCard.Start -> {
-                    WidgetStartMltCard()
-                }
-                is MltCard.Mlt -> {
-                    WidgetMltCard(question = card.question)
-                }
+            is MltCard.Mlt -> {
+                WidgetMltCard(question = card.question)
             }
         }
     }

@@ -25,37 +25,26 @@ fun WouldYouRatherScreen(
     val stackState = rememberStackState {
         viewModel.next()
     }
-    Scaffold(
+    Stack(
         modifier = modifier,
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(stringResource(R.string.screen_wyr_title)) }
+        state = stackState,
+        placeholder = {
+            PlaceholderWyrCard(
+                modifier = Modifier
+                    .width(300.dp)
+                    .height(450.dp)
             )
-        },
-    ) { paddingValues ->
-        Stack(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            state = stackState,
-            placeholder = {
-                PlaceholderWyrCard(
-                    modifier = Modifier
-                        .width(300.dp)
-                        .height(450.dp)
-                )
+        }
+    ) {
+        when (val card = viewModel.currentCard) {
+            is WyrCard.Start -> {
+                WidgetStartWyrCard()
             }
-        ) {
-            when (val card = viewModel.currentCard) {
-                is WyrCard.Start -> {
-                    WidgetStartWyrCard()
-                }
-                is WyrCard.Wyr -> {
-                    WidgetWyrCard(
-                        optionOne = card.optionOne,
-                        optionTwo = card.optionTwo
-                    )
-                }
+            is WyrCard.Wyr -> {
+                WidgetWyrCard(
+                    optionOne = card.optionOne,
+                    optionTwo = card.optionTwo
+                )
             }
         }
     }

@@ -17,7 +17,6 @@ import com.materiapps.blast.ui.viewmodel.TodCard
 import com.materiapps.blast.ui.viewmodel.TodViewModel
 import kotlinx.coroutines.launch
 
-
 @Composable
 fun TruthOrDareScreen(
     modifier: Modifier = Modifier,
@@ -35,65 +34,14 @@ fun TruthOrDareScreen(
         }
     }
     val coroutineScope = rememberCoroutineScope()
-    Scaffold(
+    Column(
         modifier = modifier,
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(stringResource(R.string.screen_tod_title)) }
-            )
-        },
-        bottomBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 8.dp, end = 8.dp, bottom = 16.dp)
-                    .height(56.dp)
-                    .clip(MaterialTheme.shapes.large),
-                horizontalArrangement = Arrangement.spacedBy(2.dp)
-            ) {
-                ElevatedButton(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .weight(1f),
-                    onClick = {
-                        coroutineScope.launch {
-                            stackState.swipeToLeft()
-                        }
-                    },
-                    shape = MaterialTheme.shapes.extraSmall,
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_arrow_left),
-                        contentDescription = stringResource(R.string.screen_tod_dare)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(stringResource(R.string.screen_tod_dare))
-                }
-                ElevatedButton(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .weight(1f),
-                    onClick = {
-                        coroutineScope.launch {
-                            stackState.swipeToRight()
-                        }
-                    },
-                    shape = MaterialTheme.shapes.extraSmall,
-                ) {
-                    Text(stringResource(R.string.screen_tod_truth))
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Icon(
-                        painter = painterResource(R.drawable.ic_arrow_right),
-                        contentDescription = stringResource(R.string.screen_tod_truth)
-                    )
-                }
-            }
-        }
-    ) { paddingValues ->
+        verticalArrangement = Arrangement.SpaceBetween
+    ) {
         Stack(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
+                .fillMaxWidth()
+                .weight(1f),
             state = stackState,
             placeholder = {
                 PlaceholderTodCard(
@@ -120,6 +68,80 @@ fun TruthOrDareScreen(
                     )
                 }
             }
+        }
+        WidgetStackControls(
+            modifier = Modifier.padding(
+                start = 8.dp,
+                end = 8.dp,
+                bottom = 12.dp
+            ),
+            onTruthClick = {
+                coroutineScope.launch {
+                    stackState.swipeToRight()
+                }
+            },
+            onDareClick = {
+                coroutineScope.launch {
+                    stackState.swipeToLeft()
+                }
+            }
+        )
+    }
+}
+
+@Composable
+private fun WidgetStackControls(
+    onTruthClick: () -> Unit,
+    onDareClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            .clip(MaterialTheme.shapes.large),
+        horizontalArrangement = Arrangement.spacedBy(2.dp)
+    ) {
+        ControlButton(
+            modifier = Modifier
+                .fillMaxHeight()
+                .weight(1f),
+            onClick = onDareClick,
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_arrow_left),
+                contentDescription = stringResource(R.string.screen_tod_dare)
+            )
+            Text(stringResource(R.string.screen_tod_dare))
+        }
+        ControlButton(
+            modifier = Modifier
+                .fillMaxHeight()
+                .weight(1f),
+            onClick = onTruthClick,
+        ) {
+            Text(stringResource(R.string.screen_tod_truth))
+            Icon(
+                painter = painterResource(R.drawable.ic_arrow_right),
+                contentDescription = stringResource(R.string.screen_tod_truth)
+            )
+        }
+    }
+}
+
+@Composable
+private fun ControlButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    content: @Composable RowScope.() -> Unit
+) {
+    ElevatedButton(
+        modifier = modifier,
+        onClick = onClick,
+        shape = MaterialTheme.shapes.extraSmall,
+    ) {
+        ProvideTextStyle(MaterialTheme.typography.titleMedium) {
+            content()
         }
     }
 }

@@ -25,34 +25,23 @@ fun NeverHaveIEverScreen(
     val stackState = rememberStackState {
         viewModel.next()
     }
-    Scaffold(
+    Stack(
         modifier = modifier,
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(stringResource(R.string.screen_nhie_title)) }
+        state = stackState,
+        placeholder = {
+            PlaceholderNhieCard(
+                modifier = Modifier
+                    .width(300.dp)
+                    .height(450.dp)
             )
-        },
-    ) { paddingValues ->
-        Stack(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            state = stackState,
-            placeholder = {
-                PlaceholderNhieCard(
-                    modifier = Modifier
-                        .width(300.dp)
-                        .height(450.dp)
-                )
+        }
+    ) {
+        when (val card = viewModel.currentCard) {
+            is NhieCard.Start -> {
+                WidgetStartNhieCard()
             }
-        ) {
-            when (val card = viewModel.currentCard) {
-                is NhieCard.Start -> {
-                    WidgetStartNhieCard()
-                }
-                is NhieCard.Nhie -> {
-                    WidgetNhieCard(question = card.question)
-                }
+            is NhieCard.Nhie -> {
+                WidgetNhieCard(question = card.question)
             }
         }
     }
