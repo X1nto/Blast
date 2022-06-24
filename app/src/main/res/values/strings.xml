@@ -14,6 +14,6 @@
     <string name="screen_wyr_title">Would you rather</string>
     <string name="screen_wyr_start">Swipe in any direction to start.</string>
 
-    <string name="screen_mlt_title">Most likely to</string>
+    <string name="screen_mlt_title">Who\'s most likely to</string>
     <string name="screen_mlt_start">Swipe in any direction to start.</string>
 </resources>
