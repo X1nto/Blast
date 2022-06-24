@@ -154,7 +154,7 @@ fun WidgetAdaptiveStackLayout(
                 }
                 WidgetVerticalStackControls(
                     modifier = Modifier
-                        .weight(0.3f)
+                        .weight(0.4f)
                         .padding(
                             start = 4.dp,
                             end = 12.dp,
