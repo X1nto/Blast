@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">Blast</string>
 
+    <string name="drawer_headline_minigames">Minigames</string>
+
     <string name="screen_tod_title">Truth or Dare</string>
     <string name="screen_tod_start">Swipe right for Truth, left for Dare. Alternatively, use the buttons below.</string>
     <string name="screen_tod_truth">Truth</string>

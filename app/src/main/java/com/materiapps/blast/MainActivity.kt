@@ -7,6 +7,7 @@ import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.ContentAlpha
 import androidx.compose.material3.*
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -175,13 +176,14 @@ private fun WidgetDrawerContent(
         contentPadding = PaddingValues(8.dp)
     ) {
         item {
-            ProvideTextStyle(MaterialTheme.typography.titleMedium) {
+            ProvideTextStyle(MaterialTheme.typography.titleSmall) {
                 Text(
                     modifier = Modifier.padding(
                         horizontal = 16.dp,
                         vertical = 12.dp
                     ),
-                    text = "Minigames"
+                    text = stringResource(R.string.drawer_headline_minigames),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
